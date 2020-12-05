@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+		<link rel="stylesheet" href="style.css" />
+		<title>System information</title>
+	</head>
+
+	<body>
+		<div class="container">
+			<h1>System Information</h1>
+			<div id="output">
+				<div id="output-left"></div>
+				<div id="output-right">
+					<h2>CPU usage</h2>
+					<canvas id="cpuChart"></canvas>
+					<p>
+						<button onclick="stopCPUSampling()">Stop</button>
+					</p>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		console.log(process);
+		let cpuChart = document.getElementById('cpuChart').getContext('2d');
+		let CPUSampling;
+		let cpuArray = [];
+
+		let outputLeft = `
+				    <h2>Computer information</h2>
+				    <ul class="list-group">
+				      <li class="list-group-item">Computer Name: <span class="text-bold">${
+								process.env.USERDOMAIN
+							}</span></li>
+				      <li class="list-group-item">Username: <span class="text-bold">${
+								process.env.USERNAME
+							}</span></li>
+				      <li class="list-group-item">User Home Path: <span class="text-bold">${
+								process.env.HOME
+							}</span></li>
+				      <li class="list-group-item">System Drive: <span class="text-bold">${
+								process.env.SYSTEMDRIVE
+							}</span></li>
+				      <li class="list-group-item">System Root: <span class="text-bold">${
+								process.env.SYSTEMROOT
+							}</span></li>
+				    </ul>
+				    <h2>System Specifications</h2>
+				    <ul class="list-group">
+				      <li class="list-group-item">System Architecture: <span class="text-bold">${
+								process.arch
+							}</span></li>
+				      <li class="list-group-item">Processor identifier: <span class="text-bold">
+		              ${process.env.PROCESSOR_IDENTIFIER}
+		            </span></li>
+				      <li class="list-group-item">Printer: <span class="text-bold">${
+								process.env.PRINTER
+							}</span></li>
+				      </ul>
+				      <h2 class="page-header mt-5">System Memory</h2>
+				      <ul class="list-group">
+				        <li class="list-group-item">Total:<span class="text-bold">
+		                 ${process.getSystemMemoryInfo().total} GB
+		              </span></li>
+				        <li class="list-group-item">Free: <span class="text-bold">
+		                ${process.getSystemMemoryInfo().free} GB
+		              </span></li>
+				        <li class="list-group-item">Swap Total:<span class="text-bold">
+		                 ${process.getSystemMemoryInfo().swapTotal} GB
+		              </span></li>
+				        <li class="list-group-item">Swap Free: <span class="text-bold">
+		                ${process.getSystemMemoryInfo().swapFree} GB
+		              </span></li>
+				        </ul>
+				        <h2 class="page-header mt-5">App Version Data</h2>
+				        <ul class="list-group">
+				          <li class="list-group-item">Node.JS: <span class="text-bold">${
+										process.versions.node
+									}</span></li>
+				          <li class="list-group-item">Chrome: <span class="text-bold">${
+										process.versions.chrome
+									}</span></li>
+				          <li class="list-group-item"> Electron: <span class="text-bold">
+		                 ${process.versions.electron}
+		                </span></li>
+				        </ul>
+		            `;
+		// let outputRight = `
+		//       <h3>CPU Usage: ${process.getCPUUsage().percentCPUUsage}</h3>
+		//     `;
+		let cpuUsageChart = new Chart(cpuChart, {
+			type: 'line',
+			data: {
+				labels: new Array(15).fill('|'),
+				datasets: [
+					{
+						data: [],
+						backgroundColor: 'rgba(116, 82, 190, 0.7)',
+					},
+				],
+			},
+			options: {
+				responsive: true,
+				legend: {
+					display: false,
+				},
+			},
+		});
+
+		document.getElementById('output-left').innerHTML = outputLeft;
+
+		function updateCPUData() {
+			CPUSampling = setInterval(() => {
+				let cpuUsage = process.getCPUUsage().percentCPUUsage;
+				cpuArray = [cpuUsage, ...cpuArray];
+				cpuUsageChart.data.datasets[0].data = cpuArray;
+				cpuUsageChart.update();
+			}, 1000);
+		}
+
+		function stopCPUSampling() {
+			clearInterval(CPUSampling);
+		}
+
+		updateCPUData();
+	</script>
+	<script>
+		require('./renderer.js');
+	</script>
+</html>
