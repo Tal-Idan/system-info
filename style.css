@@ -28,6 +28,7 @@ body {
 
 .list-group {
 	background-color: rgb(189, 133, 245);
+	box-shadow: 2px 2px 4px black;
 	padding: 15px;
 	list-style: none;
 	line-height: 1.4em;
